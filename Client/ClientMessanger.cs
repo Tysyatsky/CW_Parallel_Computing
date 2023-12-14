@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Client;
 
-public class Client
+public class ClientMessanger
 {
 
     public static void SendMessage(Socket socket, string message)
