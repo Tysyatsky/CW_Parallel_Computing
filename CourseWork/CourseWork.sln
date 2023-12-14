@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CourseWork", "CourseWork.csproj", "{F25CB72C-C7AB-4775-951E-BD650C7AB3B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SearchEngineServer", "..\SearchEngineServer\SearchEngineServer.csproj", "{6D1653EE-B0A8-4AE0-B4AF-2ACBA2AD4F6C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchEngineServer", "..\SearchEngineServer\SearchEngineServer.csproj", "{6D1653EE-B0A8-4AE0-B4AF-2ACBA2AD4F6C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "..\Client\Client.csproj", "{DDAFC47E-036C-4C18-9214-CDECAFD77D16}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchEngineData", "..\SearchEngineData\SearchEngineData.csproj", "{B67057B6-7E5E-4214-ABDD-E34006E030E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchEngineTests", "..\SearchEngineTests\SearchEngineTests.csproj", "{1875A9B5-D32B-43FF-8543-FC75D38F68C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +17,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F25CB72C-C7AB-4775-951E-BD650C7AB3B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F25CB72C-C7AB-4775-951E-BD650C7AB3B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F25CB72C-C7AB-4775-951E-BD650C7AB3B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F25CB72C-C7AB-4775-951E-BD650C7AB3B7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6D1653EE-B0A8-4AE0-B4AF-2ACBA2AD4F6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6D1653EE-B0A8-4AE0-B4AF-2ACBA2AD4F6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D1653EE-B0A8-4AE0-B4AF-2ACBA2AD4F6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D1653EE-B0A8-4AE0-B4AF-2ACBA2AD4F6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDAFC47E-036C-4C18-9214-CDECAFD77D16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDAFC47E-036C-4C18-9214-CDECAFD77D16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDAFC47E-036C-4C18-9214-CDECAFD77D16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDAFC47E-036C-4C18-9214-CDECAFD77D16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B67057B6-7E5E-4214-ABDD-E34006E030E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B67057B6-7E5E-4214-ABDD-E34006E030E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B67057B6-7E5E-4214-ABDD-E34006E030E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B67057B6-7E5E-4214-ABDD-E34006E030E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1875A9B5-D32B-43FF-8543-FC75D38F68C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1875A9B5-D32B-43FF-8543-FC75D38F68C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1875A9B5-D32B-43FF-8543-FC75D38F68C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1875A9B5-D32B-43FF-8543-FC75D38F68C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
