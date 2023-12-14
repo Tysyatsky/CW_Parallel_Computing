@@ -16,13 +16,18 @@ namespace Client
                 clientSocket.Connect(serverIp, serverPort);
                 Console.WriteLine("Connected to the server.");
 
-                // Send a message to the server
-                string messageToSend = "Hello, server!";
-                Client.SendMessage(clientSocket, messageToSend);
+                Console.WriteLine("Enter word to search in documents");
 
-                // Receive the server's response
-                string receivedMessage = Client.ReceiveMessage(clientSocket);
-                Console.WriteLine($"Server response: {receivedMessage}");
+                // Send a message to the server
+                string messageToSend = Console.ReadLine() ?? "";
+                ClientMessanger.SendMessage(clientSocket, messageToSend);
+
+                while (true)
+                {
+                    // Receive the server's response
+                    string receivedMessage = ClientMessanger.ReceiveMessage(clientSocket);
+                    Console.WriteLine($"Server response: {receivedMessage}");
+                }
             }
             catch (Exception ex)
             {
