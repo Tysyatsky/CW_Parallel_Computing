@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace CourseWork
 {
-    internal class SearchEngine
+    public class SearchEngine
     {
-        private readonly InvertedIndex
-        public SearchEngine() { }
+       
     }
 }

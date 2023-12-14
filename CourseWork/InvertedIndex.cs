@@ -2,7 +2,7 @@
 {
     class InvertedIndex
     {
-        private Dictionary<string, List<int>> index;
+        private readonly Dictionary<string, List<int>> index;
 
         public InvertedIndex()
         {
