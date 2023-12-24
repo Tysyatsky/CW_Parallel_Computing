@@ -2,14 +2,14 @@
 
 public static class FileReader
 {
-    private static readonly char[] textExtras = { ' ', '\t', '\n', '\r', '.', ',', ';', ':', '!', '?', '>', '<', '"', '/', '(', ')' };
+    private static readonly char[] TextExtras = { ' ', '\t', '\n', '\r', '.', ',', ';', ':', '!', '?', '>', '<', '"', '/', '(', ')' };
 
     public static string[] ReadWordsFromFile(string path)
     {
-        string text = File.ReadAllText(path);
+        var text = File.ReadAllText(path);
         return TextToWordsConvertor(text);
     }
 
     private static string[] TextToWordsConvertor(string text) =>
-        text.Split(textExtras, StringSplitOptions.RemoveEmptyEntries);
+        text.Split(TextExtras, StringSplitOptions.RemoveEmptyEntries);
 }

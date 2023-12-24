@@ -1,41 +1,51 @@
 ﻿using System.Net.Sockets;
 using System.Net;
 using System.Text;
+using Data.Models;
 using SearchEngineData;
+using SearchEngineData.ThreadPool.Data.Models;
 
 namespace SearchEngineServer;
 
 public class Server
 {
-    private readonly Socket _listener;
     private readonly InvertedIndex _invertedIndex;
+    private readonly SearchEngineData.ThreadPool.Instances.ThreadPool _threadPool;
 
-    public Server(int port, InvertedIndex invertedIndex)
+    public Server(int port, InvertedIndex invertedIndex, SearchEngineData.ThreadPool.Instances.ThreadPool threadPool)
     {
         _invertedIndex = invertedIndex;
-        _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        _listener.Bind(new IPEndPoint(IPAddress.Any, port));
-        _listener.Listen(10);
+        _threadPool = threadPool ?? throw new ArgumentNullException(nameof(threadPool));
+        var listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        listener.Bind(new IPEndPoint(IPAddress.Any, port));
+        listener.Listen(10);
 
         Console.WriteLine($"Server is listening on port {port}. Press any key to exit.");
 
         while (true)
         {
-            Socket clientSocket = _listener.Accept();
-            Thread clientThread = new(new ParameterizedThreadStart(HandleClientComm));
-            clientThread.Start(clientSocket);
+            var clientSocket = listener.Accept();
+            try
+            {
+                Thread clientThread = new(HandleClientComm);
+                clientThread.Start(clientSocket);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
     }
 
-    private void HandleClientComm(object clientObj)
+    private void HandleClientComm(object? clientObj)
     {
-        Socket clientSocket = (Socket)clientObj;
-        NetworkStream networkStream = new(clientSocket);
-        byte[] message = new byte[4096];
-        int bytesRead;
+        var clientSocket = (Socket)clientObj!;
+        NetworkStream networkStream = new(clientSocket ?? throw new InvalidOperationException());
+        var message = new byte[4096];
 
         while (true)
         {
+            int bytesRead;
             try
             {
                 bytesRead = networkStream.Read(message, 0, message.Length);
@@ -48,21 +58,15 @@ public class Server
                 return;
             }
 
-            string clientMessage = Encoding.ASCII.GetString(message, 0, bytesRead);
+            var clientMessage = Encoding.ASCII.GetString(message, 0, bytesRead);
             Console.WriteLine($"Received: {clientMessage}");
 
-            List<int> result = _invertedIndex.Search(clientMessage);
-
-            byte[] sendBytes = Encoding.ASCII.GetBytes("Server received your message.");
+            Thread.Sleep(3000);
+            var result = new SearchTask(0,0, clientMessage, "", _invertedIndex).Execute();
+            
+            Thread.Sleep(3000);
+            byte[] sendBytes = Encoding.ASCII.GetBytes(result);
             networkStream.Write(sendBytes, 0, sendBytes.Length);
-            // networkStream.Flush();
-
-            Console.WriteLine($"Documents containing '{clientMessage}':");
-            foreach (var docId in result)
-            {
-                sendBytes = Encoding.ASCII.GetBytes($"Doc #{docId}");
-                networkStream.Write(sendBytes, 0, sendBytes.Length);
-            }
         }
 
         clientSocket.Close();

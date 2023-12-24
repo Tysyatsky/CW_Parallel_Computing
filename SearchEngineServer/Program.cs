@@ -1,39 +1,42 @@
-﻿using SearchEngineData;
+﻿using System.Diagnostics;
+using SearchEngineData;
 
 namespace SearchEngineServer
 {
-    public class Program
+    internal class Program
     {
-        readonly static string[] doc1 = { "apple", "banana", "orange" };
-        readonly static string[] doc2 = { "apple", "pear", "grape" };
-        readonly static string[] doc3 = { "banana", "kiwi", "orange" };
+        private static readonly string[] Doc1 = { "apple", "banana", "orange" };
+        private static readonly string[] Doc2 = { "apple", "pear", "grape" };
+        private static readonly string[] Doc3 = { "banana", "kiwi", "orange" };
 
-        static void Main()
+        private static void Main()
         {
             // InitialTest();
             // FilesTest();
 
             InvertedIndex invertedIndex = new();
+            SearchEngineData.ThreadPool.Instances.ThreadPool threadPool = new(4);
 
-            FilesFinder(invertedIndex, @"C:\Users\tysya\Desktop\test_n");
+            FilesFinder(invertedIndex, @"C:\Uni\CourseWork\CW_Parallel_Computing\Docs\test_neg");
+            invertedIndex.PrintIndex();
 
-            int port = 6000; // Specify the port number you want the server to listen on
-            _ = new Server(port, invertedIndex);
+            const int port = 6000; // Specify the port number you want the server to listen on
+            _ = new Server(port, invertedIndex, threadPool);
 
             Console.WriteLine($"Server is listening on port {port}. Press any key to exit.");
             Console.ReadKey();
         }
 
-        static void InitialTest()
+        private static void InitialTest()
         {
             InvertedIndex invertedIndex = new();
 
-            invertedIndex.AddDocument(1, doc1);
-            invertedIndex.AddDocument(2, doc2);
-            invertedIndex.AddDocument(3, doc3);
+            invertedIndex.AddDocument(1, Doc1);
+            invertedIndex.AddDocument(2, Doc2);
+            invertedIndex.AddDocument(3, Doc3);
 
-            string searchTerm = "banana";
-            List<int> result = invertedIndex.Search(searchTerm);
+            const string searchTerm = "banana";
+            var result = invertedIndex.Search(searchTerm);
 
             Console.WriteLine($"Documents containing '{searchTerm}':");
             foreach (var docId in result)
@@ -45,18 +48,18 @@ namespace SearchEngineServer
             invertedIndex.PrintIndex();
         }
 
-        static void FilesTest()
+        private static void FilesTest()
         {
             InvertedIndex invertedIndex = new();
 
-            FilesFinder(invertedIndex, @"C:\Users\tysya\Desktop\test_n");
+            FilesFinder(invertedIndex, "./train_u");
 
-            var searchTerm = "word";
+            const string searchTerm = "word";
 
             // Too many words
             // invertedIndex.PrintIndex();
 
-            List<int> result = invertedIndex.Search(searchTerm);
+            var result = invertedIndex.Search(searchTerm);
 
             Console.WriteLine($"Documents containing '{searchTerm}':");
             foreach (var docId in result)
@@ -65,20 +68,48 @@ namespace SearchEngineServer
             }
         }
 
-        static void FilesFinder(InvertedIndex invertedIndex, string directoryPath)
+        private static void FilesFinder(InvertedIndex invertedIndex, string directoryPath)
         {
+            var stopwatch = new Stopwatch();
+            
+            stopwatch.Start();
+            
             try
             {
-                string[] filePaths = Directory.GetFiles(directoryPath);
+                var filePaths = Directory.GetFiles(directoryPath);
 
-                foreach (string filePath in filePaths)
+                const int threadCount = 12;
+                var threads = new Thread[threadCount];
+                
+                for (int t = 0; t < threadCount; t++)
                 {
-                    var words = FileReader.ReadWordsFromFile(filePath);
+                    int threadIndex = t;
+                    int rowsPerThread = filePaths.Length / threadCount;
 
-                    _ = int.TryParse(Path.GetFileName(filePath).Split('_')[0], out int localDocId);
+                    threads[t] = new Thread(() =>
+                    {
+                        int startRow = threadIndex * rowsPerThread;
+                        int endRow = (threadIndex == threadCount - 1) ? filePaths.Length : (threadIndex + 1) * rowsPerThread;
 
-                    invertedIndex.AddDocument(localDocId, words);
+                        for (int i = startRow; i < endRow; i++)
+                        {
+                            var words = FileReader.ReadWordsFromFile(filePaths[i]);
+
+                            _ = int.TryParse(Path.GetFileName(filePaths[i]).Split('_')[0], out var localDocId);
+
+                            invertedIndex.AddDocument(localDocId, words);
+                        }
+                    });
+                    threads[t].Start();
                 }
+
+                foreach (var thread in threads)
+                {
+                    thread.Join();
+                }
+                
+                stopwatch.Stop();
+                Console.WriteLine(stopwatch.ElapsedMilliseconds / 1000);
             }
             catch (Exception ex)
             {

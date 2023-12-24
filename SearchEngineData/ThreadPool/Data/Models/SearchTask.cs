@@ -1,38 +1,37 @@
-﻿namespace Data.Models
+﻿using System.Text;
+
+namespace SearchEngineData.ThreadPool.Data.Models
 {
-    public class FakeTask
+    public class SearchTask
     {
-        private readonly int _id;
-        private readonly string _title;
-        private readonly int _executionTime;
-        private readonly string _result;
+        private readonly int _minIndex;
+        private readonly int _maxIndex;
+        private readonly string _searchString;
+        private readonly string _directoryPath;
+        private readonly InvertedIndex _invertedIndex;
 
-        public FakeTask()
+        public SearchTask(int minIndex, int maxIndex, string searchString, string directoryPath, InvertedIndex invertedIndex)
         {
-            _id = id;
-            _title = title;
-            _executionTime = executionTime;
-            _result = result;
-        }
-
-        public int Id { get { return _id;} }
-        public string Title { get { return _title;} }
-        public int ExecutionTime { get { return _executionTime; } }
-        public string Result { get { return _result;} }
-
-        public void Print()
-        {
-            Console.WriteLine($"Task id: {_id}");
-            Console.WriteLine($"Title: {_title}");
-            Console.WriteLine($"Ex. time: {_executionTime}");
-            Console.WriteLine($"Result: {_result}");
+            _minIndex = minIndex;
+            _maxIndex = maxIndex;
+            _searchString = searchString;
+            _directoryPath = directoryPath;
+            _invertedIndex = invertedIndex;
         }
 
         public string Execute()
-        {   
-            Thread.Sleep(ExecutionTime * 1000);
-            Console.WriteLine(Result);
-            return Result;
+        {
+            var stringBuilder = new StringBuilder();
+            var result = _invertedIndex.Search(_searchString);
+            Console.WriteLine($"Documents containing '{_searchString}':");
+
+            Console.WriteLine($"Received: {_searchString}");
+            foreach (var docId in result)
+            {
+                stringBuilder.Append($"Doc #{docId}\n");
+            }
+
+            return stringBuilder.ToString();
         }
     }
 }

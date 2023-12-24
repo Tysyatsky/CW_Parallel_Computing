@@ -2,28 +2,23 @@
 
 public class InvertedIndex
 {
-    private readonly Dictionary<string, List<int>> index;
+    private readonly Dictionary<string, List<int>> _index = new();
     private readonly object _lockObject = new();
 
-    public InvertedIndex()
-    {
-        index = new Dictionary<string, List<int>>();
-    }
-
-    public void AddDocument(int documentId, string[] terms)
+    public void AddDocument(int documentId, IEnumerable<string> terms)
     {
         lock (_lockObject)
         {
             foreach (var term in terms)
             {
-                if (!index.ContainsKey(term))
+                if (!_index.ContainsKey(term))
                 {
-                    index[term] = new List<int>();
+                    _index[term] = new List<int>();
                 }
 
-                if (!index[term].Contains(documentId))
+                if (!_index[term].Contains(documentId))
                 {
-                    index[term].Add(documentId);
+                    _index[term].Add(documentId);
                 }
             }
         }
@@ -33,27 +28,23 @@ public class InvertedIndex
     {
         lock(_lockObject)
         {
-            if (index.ContainsKey(term))
-            {
-                return index[term];
-            }
-            else
-            {
-                return new List<int>();
-            }
+            return _index.TryGetValue(term, out var search) ? search : new List<int>();
         }
     }
 
     public void PrintIndex() // only for testing purposes
     {
-        foreach (var term in index.Keys)
+        lock (_lockObject)
         {
-            Console.Write($"{term}: ");
-            foreach (var docId in index[term])
+            foreach (var term in _index.Keys)
             {
-                Console.Write($"{docId} ");
+                Console.Write($"{term}: ");
+                foreach (var docId in _index[term])
+                {
+                    Console.Write($"{docId} ");
+                }
+                Console.WriteLine();
             }
-            Console.WriteLine();
         }
     }
 }

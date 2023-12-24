@@ -1,24 +1,14 @@
-﻿using Data.Interfaces;
+﻿using System.Collections;
+using Data.Interfaces;
 using Data.Models;
-using System.Collections;
-using System.Collections.Generic;
+using SearchEngineData.ThreadPool.Data.Models;
 
-namespace Instances
+namespace SearchEngineData.ThreadPool.Instances
 {
-    public class CustomQueue : IQueue<FakeTask>, IEnumerable<FakeTask>
+    public class CustomQueue : IQueue<SearchTask>
     {
-        private readonly Queue<FakeTask> _tasks = new Queue<FakeTask>();
-        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
-
-        public CustomQueue()
-        {
-            _tasks = new Queue<FakeTask>();
-        }
-
-        public CustomQueue(int capacity)
-        {
-            _tasks = new Queue<FakeTask>(capacity);
-        }
+        private readonly Queue<SearchTask> _tasks = new();
+        private readonly ReaderWriterLockSlim _lock = new();
 
         public void Clear() 
         {
@@ -43,7 +33,7 @@ namespace Instances
             }
         }
 
-        public FakeTask Pop()
+        public SearchTask Pop()
         {   
             lock (_lock)
             {
@@ -56,23 +46,18 @@ namespace Instances
             }
         }
 
-        public int GetTotalTimeInQueue()
+        public bool GetTotalTimeInQueue()
         {
             lock(_lock)
             {
-                return !Empty() ? _tasks.Sum(task => task.ExecutionTime) : 0;
+                return !Empty();
             }
         }
 
-        public void Push(FakeTask value)
+        public void Push(SearchTask value)
         {
             lock (_lock)
             {
-                if (_tasks.Count >= 10)
-                {
-                    throw new InvalidOperationException("Too many elements in queue! " +
-                        "Due to the variant it is imposible");
-                }
                 _tasks.Enqueue(value);
                 Monitor.Pulse(_lock);
             }
@@ -82,11 +67,11 @@ namespace Instances
         {
             foreach (var task in _tasks)
             {
-                task.Print();
+                // task.Print();
             }
         }
 
-        public IEnumerator<FakeTask> GetEnumerator()
+        public IEnumerator<SearchTask> GetEnumerator()
         {
             return _tasks.GetEnumerator();
         }

@@ -16,6 +16,6 @@ namespace Data.Interfaces
 
         void Print();
 
-        int GetTotalTimeInQueue();
+        bool GetTotalTimeInQueue();
     }
 }

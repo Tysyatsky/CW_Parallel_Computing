@@ -2,12 +2,12 @@
 
 namespace Client
 {
-    internal class Program
+    internal static class Program
     {
         static void Main()
         {
-            string serverIp = "127.0.0.1"; // Replace with the actual IP address or hostname of the server
-            int serverPort = 6000; // Replace with the port number the server is listening on
+            const string serverIp = "127.0.0.1"; // Replace with the actual IP address or hostname of the server
+            const int serverPort = 6000; // Replace with the port number the server is listening on
 
             Socket clientSocket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
@@ -19,14 +19,15 @@ namespace Client
                 Console.WriteLine("Enter word to search in documents");
 
                 // Send a message to the server
-                string messageToSend = Console.ReadLine() ?? "";
-                ClientMessanger.SendMessage(clientSocket, messageToSend);
-
+                var messageToSend = Console.ReadLine() ?? "";
+                ClientMessenger.SendMessage(clientSocket, messageToSend);
+                
                 while (true)
                 {
-                    // Receive the server's response
-                    string receivedMessage = ClientMessanger.ReceiveMessage(clientSocket);
-                    Console.WriteLine($"Server response: {receivedMessage}");
+                     // Receive the server's response
+                     var receivedMessage = ClientMessenger.ReceiveMessage(clientSocket);
+                     Console.WriteLine($"Server response: {receivedMessage}");
+                     return;
                 }
             }
             catch (Exception ex)

@@ -1,12 +1,13 @@
-﻿using Data.Interfaces;
+﻿using System.Diagnostics;
+using Data.Interfaces;
 using Data.Models;
-using System.Diagnostics;
+using SearchEngineData.ThreadPool.Data.Models;
 
-namespace Instances
+namespace SearchEngineData.ThreadPool.Instances
 {
     public class ThreadPool : IThreadPool, IDisposable
     {
-        private IQueue<FakeTask> _queue;
+        private IQueue<SearchTask> _queue;
         private Thread[] _threads;
         private bool _working;
         private bool _terminated;
@@ -56,7 +57,7 @@ namespace Instances
             _init = true;
         }
 
-        public void AddTask(FakeTask task)
+        public void AddTask(SearchTask task)
         {
             lock (_lock)
             {
@@ -64,17 +65,11 @@ namespace Instances
                 {
                     return;
                 }
-                if (!_working && (_queue.GetTotalTimeInQueue() + task.ExecutionTime) >= 60)
-                {
-                    Console.WriteLine($"Task {task.Id} was declined!");
-                    _rejectedTaskInQueue++;
-                    return;
-                }
-                if(!_working && (_queue.GetTotalTimeInQueue() + task.ExecutionTime) < 60)
+                if(!_working)
                 {
                     _queue.Push(task);
                     Monitor.Pulse(_lock);
-                    Console.WriteLine($"Task #{task.Id} was added to the queue");
+                    Console.WriteLine($"Task was added to the queue");
                 }
             }
         }
@@ -82,7 +77,7 @@ namespace Instances
         {
             while (true)
             {   
-                FakeTask task;
+                SearchTask task;
                 lock (_lock)
                 {
                     if (!_queue.Empty() && !_stopwatch.IsRunning)
@@ -147,8 +142,6 @@ namespace Instances
                     // _terminated = true;
                     _queue.Clear();
                     Console.WriteLine("Queue cleared!");
-                    _buffer.Clear();
-                    Console.WriteLine("Buffer cleared!");
                     _disposed = true;
                     Monitor.PulseAll(_lock);
 
@@ -156,11 +149,6 @@ namespace Instances
                     {
                         thread.Join();
                     }
-                    Console.WriteLine("Thread cleared!");
-                    Console.WriteLine($"Rejected for queue: {_rejectedTaskInQueue}");
-                    Console.WriteLine($"Rejected for buffer: {_rejectedTaskInBuffer}");
-                    Console.WriteLine($"Min time for queue empty: {_timeForThreadWaiting.Min()}");
-                    Console.WriteLine($"Max time for queue empty: {_timeForThreadWaiting.Max()}");
                     _terminated = true;
                     _threads = null;
                 }
