@@ -1,11 +1,11 @@
-﻿namespace SearchEngineData;
+﻿namespace SearchEngineData.InvertedIndex.Instance;
 
 public class InvertedIndex
 {
-    private readonly Dictionary<string, List<int>> _index = new();
+    private readonly Dictionary<string, List<string>> _index = new();
     private readonly object _lockObject = new();
 
-    public void AddDocument(int documentId, IEnumerable<string> terms)
+    public void AddDocument(string documentId, IEnumerable<string> terms)
     {
         lock (_lockObject)
         {
@@ -13,7 +13,7 @@ public class InvertedIndex
             {
                 if (!_index.ContainsKey(term))
                 {
-                    _index[term] = new List<int>();
+                    _index[term] = new List<string>();
                 }
 
                 if (!_index[term].Contains(documentId))
@@ -24,11 +24,11 @@ public class InvertedIndex
         }
     }
 
-    public List<int> Search(string term)
+    public List<string> Search(string term)
     {
         lock(_lockObject)
         {
-            return _index.TryGetValue(term, out var search) ? search : new List<int>();
+            return _index.TryGetValue(term, out var search) ? search : new List<string>();
         }
     }
 

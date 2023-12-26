@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>SearchEngineData</RootNamespace>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <Compile Remove="ThreadPool\Generators\**" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <EmbeddedResource Remove="ThreadPool\Generators\**" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Remove="ThreadPool\Generators\**" />
+  </ItemGroup>
+
+
+
+
+
+</Project>

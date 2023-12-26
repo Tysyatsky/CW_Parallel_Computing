@@ -5,10 +5,13 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RootNamespace>SearchEngineServer</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SearchEngineData\SearchEngineData.csproj" />
+    <ProjectReference Include="..\SearchEngine.Data\SearchEngine.Data.csproj" />
   </ItemGroup>
+
+
 
 </Project>
