@@ -6,14 +6,13 @@ using SearchEngineData.ThreadPool.Data.Models;
 
 namespace SearchEngineServer.Helpers;
 
-public static class ClientHandler
+public class ClientHandler
 {
-    public static void HandleClient(object? clientObj, InvertedIndex invertedIndex)
+    public void HandleClient(object? clientObj, InvertedIndex invertedIndex)
     {
         var clientSocket = (Socket)clientObj!;
         NetworkStream networkStream = new(clientSocket ?? throw new InvalidOperationException());
         var message = new byte[4096];
-
         while (true)
         {
             int bytesRead;

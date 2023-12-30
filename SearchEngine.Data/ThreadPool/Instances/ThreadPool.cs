@@ -12,8 +12,8 @@ namespace SearchEngineData.ThreadPool.Instances
         private bool _init;
         private bool _disposed;
         private readonly int _threadCount;
-        private readonly Stopwatch _stopwatch;
-        private readonly AutoResetEvent _newWorkItemsAvailableWait = new AutoResetEvent(false);
+        private readonly Dictionary<int, Stopwatch> _stopwatch;
+        private static readonly AutoResetEvent NewTasksAvailableWait = new(false);
 
         public ThreadPool(int threadCount)
         {
@@ -21,24 +21,25 @@ namespace SearchEngineData.ThreadPool.Instances
             _threads = new Thread[threadCount];
             _init = false;
             _threadCount = threadCount;
-            _stopwatch = new Stopwatch();
+            _stopwatch = new Dictionary<int, Stopwatch>();
             for (var i = 0; i < threadCount; i++)
             {
                 _threads[i] = new Thread(Routine);
+                _stopwatch[_threads[i].ManagedThreadId] = new Stopwatch();
             }
-            StartIteration();
         }
 
-        private void StartIteration()
+        public void Start()
         {
-            if (!_init) 
+            if (!_init)
             {
                 for (var i = 0; i < _threadCount; i++)
                 {
                     _threads[i].Start();
-                    Console.WriteLine($"Thread {i} started routine!");
+                    // Console.WriteLine($"Thread {i} started routine!");
                 }
             }
+
             _init = true;
         }
 
@@ -50,48 +51,52 @@ namespace SearchEngineData.ThreadPool.Instances
             }
 
             _queue.Push(task);
-            _newWorkItemsAvailableWait.Set();
-            // Console.WriteLine($"Task was added to the queue");
-
+            NewTasksAvailableWait.Set();
         }
 
         private void Routine()
         {
             while (true)
             {
+                if (_stopwatch[Environment.CurrentManagedThreadId].IsRunning && _queue.Empty())
+                {
+                    _stopwatch[Environment.CurrentManagedThreadId].Stop();
+                    Console.WriteLine(
+                        $"Thread {Environment.CurrentManagedThreadId} was working for {_stopwatch[Environment.CurrentManagedThreadId].ElapsedMilliseconds}");
+                }
+
+                if (_queue.Empty() && (_disposed || _terminated))
+                {
+                    return;
+                }
+
                 if (_queue.Empty())
                 {
-                    Console.WriteLine($"Wait started on thread: {Environment.CurrentManagedThreadId}");
-                    if (_disposed || _terminated)
-                    {
-                        return;
-                    }
-                    _newWorkItemsAvailableWait.WaitOne();
-                    Console.WriteLine($"Wait finished on thread: {Environment.CurrentManagedThreadId}");
+                    NewTasksAvailableWait.WaitOne();
+
+                    // Console.WriteLine($"Wait finished on thread: {Environment.CurrentManagedThreadId}");
+                }
+
+                if (!_stopwatch[Environment.CurrentManagedThreadId].IsRunning)
+                {
+                    _stopwatch[Environment.CurrentManagedThreadId].Start();
                 }
 
                 try
                 {
                     var task = _queue.Pop();
                     task.Execute();
-                    Console.WriteLine($"{task.GetHashCode()} task executed");
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Console.WriteLine(e);
+                    return;
                 }
             }
         }
-        
 
         public bool WorkingUnsafe()
         {
             return !_terminated;
-        }
-
-        public void Print()
-        {
-            throw new NotImplementedException();
         }
 
         private void Dispose(bool disposing)
@@ -101,13 +106,14 @@ namespace SearchEngineData.ThreadPool.Instances
                 return;
             }
 
-            if (!disposing || !WorkingUnsafe()) 
+            if (!disposing || !WorkingUnsafe())
                 return;
-            
+
             _disposed = true;
 
             foreach (var thread in _threads)
             {
+                NewTasksAvailableWait.Set();
                 thread.Join();
             }
 
@@ -115,6 +121,7 @@ namespace SearchEngineData.ThreadPool.Instances
 
             _threads = null;
         }
+
         public void Dispose()
         {
             Dispose(true);

@@ -17,6 +17,7 @@ public class IndexingTask
     {
         var words = FileReader.ReadWordsFromFile(_filePath);
         var fileName = Path.GetFileName(_filePath);
+        // Console.WriteLine(fileName);
         _invertedIndex.AddDocument(fileName, words);
     }
 }

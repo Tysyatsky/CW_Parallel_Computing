@@ -47,7 +47,8 @@ namespace Client
             try
             {
                 clientSocket.Connect(ServerIp, ServerPort);
-                Console.WriteLine("Connection successful!");
+                var receivedMessage = ClientMessenger.ReceiveMessage(clientSocket);
+                Console.WriteLine($"Server response:\n{receivedMessage}");
                 return clientSocket;
             }
             catch (Exception e)

@@ -11,39 +11,57 @@ namespace SearchEngineData.ThreadPool.Instances
 
         public void Clear() 
         {
-            _lock.EnterWriteLock(); 
-            _tasks.Clear();
-            _lock.ExitWriteLock();
+            lock (_lock)
+            {
+                
+                _tasks.Clear();
+                _lock.ExitWriteLock();
+            }
         }
 
         public bool Empty()
-        {
-            _lock.EnterReadLock(); 
-            var isEmpty = _tasks.Count == 0;
-            _lock.ExitReadLock();
-            return isEmpty;
+        {            
+            lock (_lock)
+            {
+                //_lock.EnterReadLock(); 
+                var isEmpty = _tasks.Count == 0;
+                //_lock.ExitReadLock();
+                return isEmpty;
+            }
         }
         public int Size()
-        {
-            _lock.EnterReadLock(); 
-            var size = _tasks.Count;
-            _lock.ExitReadLock();
-            return size;
+        {            
+            lock (_lock)
+            {
+                //_lock.EnterReadLock(); 
+                var size = _tasks.Count;
+                //_lock.ExitReadLock();
+                return size;
+            }
+            
         }
 
         public IndexingTask Pop()
-        {
-            _lock.EnterWriteLock();
-            var task = _tasks.Dequeue();
-            _lock.ExitWriteLock();
-            return task;
+        {            
+            lock (_lock)
+            {
+                
+                //_lock.EnterWriteLock();
+                var task = _tasks.Dequeue();
+                //_lock.ExitWriteLock();
+                return task;
+            }
         }
 
         public void Push(IndexingTask value)
-        {
-            _lock.EnterWriteLock();
-            _tasks.Enqueue(value);
-            _lock.ExitWriteLock();
+        {   
+            lock (_lock)
+            {
+                
+                // _lock.EnterWriteLock();
+                _tasks.Enqueue(value);
+                // _lock.ExitWriteLock();
+            }
         }
 
         public IEnumerator<IndexingTask> GetEnumerator()
