@@ -12,6 +12,10 @@ public class ClientHandler
     {
         var clientSocket = (Socket)clientObj!;
         NetworkStream networkStream = new(clientSocket ?? throw new InvalidOperationException());
+        
+        var sendConnected = Encoding.ASCII.GetBytes("Connected!");
+        networkStream.Write(sendConnected, 0, sendConnected.Length);
+        
         var message = new byte[4096];
         while (true)
         {

@@ -9,9 +9,19 @@ namespace Client
 
         private static void Main()
         {
-            var clientSocket = EstablishConnection();
-            if (clientSocket is null)
+            Socket clientSocket = new(AddressFamily.InterNetwork,
+                SocketType.Stream,
+                ProtocolType.Tcp);
+            
+            try
             {
+                clientSocket.Connect(ServerIp, ServerPort);
+                var receivedMessage = ClientMessenger.ReceiveMessage(clientSocket);
+                Console.WriteLine($"Server response:\n{receivedMessage}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Connection was not established, try again");
                 return;
             }
             
@@ -35,26 +45,6 @@ namespace Client
             finally
             {
                 clientSocket.Close();
-            }
-        }
-
-        private static Socket? EstablishConnection()
-        {
-            Socket clientSocket = new(AddressFamily.InterNetwork,
-                SocketType.Stream,
-                ProtocolType.Tcp);
-            
-            try
-            {
-                clientSocket.Connect(ServerIp, ServerPort);
-                var receivedMessage = ClientMessenger.ReceiveMessage(clientSocket);
-                Console.WriteLine($"Server response:\n{receivedMessage}");
-                return clientSocket;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Connection was not established, try again");
-                return null;
             }
         }
     }
